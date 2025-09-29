@@ -6,11 +6,17 @@ abstract class OcrState {
 
 class OcrInitial extends OcrState {}
 
+class OcrImageSelected extends OcrState {
+  final int imageCount;
+  const OcrImageSelected(this.imageCount);
+}
+
+
 class OcrLoading extends OcrState {}
 
 class OcrSuccess extends OcrState {
-  final String extractedText;
-  const OcrSuccess(this.extractedText);
+  final List<String> extractedTexts;
+  const OcrSuccess(this.extractedTexts);
 }
 
 class OcrError extends OcrState {

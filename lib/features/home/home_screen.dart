@@ -5,6 +5,7 @@ import '../explain/bloc/explain_bloc.dart';
 import '../explain/result_screen.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/theme_cubit.dart';
+import '../ocr/view_text_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,6 +19,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late AnimationController _slideController;
   late Animation<double> _pulseAnimation;
   late Animation<Offset> _slideAnimation;
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
 
   @override
   void initState() {
@@ -48,6 +51,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void dispose() {
     _pulseController.dispose();
     _slideController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -140,28 +144,58 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildActionButtons() {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildActionButton(
-            icon: Icons.camera_alt_rounded,
-            label: 'Scan Document',
-            gradient: AppTheme.gradient,
-            onTap: () => context.read<OcrBloc>().add(ScanDocument()),
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: _buildActionButton(
-            icon: Icons.picture_as_pdf_rounded,
-            label: 'Import PDF',
-            gradient: LinearGradient(
-              colors: [AppTheme.accentBlue, Colors.blue[700]!],
+    return BlocBuilder<OcrBloc, OcrState>(
+      builder: (context, state) {
+        return Row(
+          children: [
+            Expanded(
+              child: _buildActionButton(
+                icon: Icons.camera_alt_rounded,
+                label: 'Scan Document',
+                gradient: AppTheme.gradient,
+                onTap: () => context.read<OcrBloc>().add(ScanImage()),
+              ),
             ),
-            onTap: () => context.read<OcrBloc>().add(ImportPdf()),
-          ),
-        ),
-      ],
+            if (state is OcrImageSelected) ...[
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildActionButton(
+                  icon: Icons.add_a_photo_rounded,
+                  label: 'Add Page',
+                  gradient: LinearGradient(
+                    colors: [AppTheme.accentBlue, Colors.blue[700]!],
+                  ),
+                  onTap: () => context.read<OcrBloc>().add(AddPage()),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildActionButton(
+                  icon: Icons.done_all_rounded,
+                  label: 'Process',
+                  gradient: LinearGradient(
+                    colors: [AppTheme.primaryGreen, Colors.green[700]!],
+                  ),
+                  onTap: () => context.read<OcrBloc>().add(ProcessImages()),
+                ),
+              ),
+            ] else ...[
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildActionButton(
+                  icon: Icons.picture_as_pdf_rounded,
+                  label: 'Import PDF',
+                  gradient: LinearGradient(
+                    colors: [AppTheme.accentBlue, Colors.blue[700]!],
+                  ),
+                  onTap: () => context.read<OcrBloc>().add(ImportPdf()),
+                ),
+              ),
+            ]
+
+          ],
+        );
+      },
     );
   }
 
@@ -227,12 +261,61 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             return _buildLoadingCard(isDarkMode);
           }
 
+          if (state is OcrImageSelected) {
+            return _buildImageSelectedCard(state.imageCount, isDarkMode);
+          }
+
           if (state is OcrSuccess) {
-            return _buildSuccessCard(state.extractedText, isDarkMode);
+            return _buildSuccessCard(state.extractedTexts, isDarkMode);
           }
 
           return _buildEmptyCard(isDarkMode);
         },
+      ),
+    );
+  }
+
+  Widget _buildImageSelectedCard(int count, bool isDarkMode) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: isDarkMode ? const Color(0xFF2C2C2C) : Colors.white,
+        borderRadius: BorderRadius.circular(25),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.collections_rounded,
+            size: 64,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            '$count page(s) selected',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: isDarkMode ? Colors.grey[300] : Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Add more pages or tap \'Process\'',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[500],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -270,7 +353,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildSuccessCard(String text, bool isDarkMode) {
+  Widget _buildSuccessCard(List<String> texts, bool isDarkMode) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -311,17 +394,40 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   color: isDarkMode ? Colors.white : Colors.black,
                 ),
               ),
+              const Spacer(),
+              Text(
+                'Page ${_currentPage + 1} of ${texts.length}',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: isDarkMode ? Colors.grey[300] : Colors.grey[600],
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
           Expanded(
-            child: SingleChildScrollView(
-              child: Text(
-                text,
-                style: TextStyle(
-                  fontSize: 14,
-                  height: 1.5,
-                  color: isDarkMode ? Colors.grey[300] : Colors.black,
+            child: Center(
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ViewTextScreen(
+                        extractedTexts: texts,
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.visibility_rounded),
+                label: const Text('View Extracted Text'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.accentBlue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
               ),
             ),
@@ -331,12 +437,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
-                context.read<ExplainBloc>().add(GenerateExplanation(text));
+                final allText = texts.join(' ');
+                context.read<ExplainBloc>().add(GenerateExplanation(allText));
                 Navigator.push(
                   context,
                   PageRouteBuilder(
                     pageBuilder: (context, animation, secondaryAnimation) =>
-                        ResultScreen(extractedText: text),
+                        ResultScreen(extractedText: allText),
                     transitionsBuilder: (context, animation, secondaryAnimation, child) {
                       return SlideTransition(
                         position: animation.drive(
