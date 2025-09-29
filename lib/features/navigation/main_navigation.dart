@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../home/home_screen.dart';
-import '../history/history_screen.dart';
-import '../settings/settings_screen.dart';
+import '../../screens/home/home_screen.dart';
+import '../../screens/history/history_screen.dart';
+import '../../screens/settings/settings_screen.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/theme_cubit.dart';
 

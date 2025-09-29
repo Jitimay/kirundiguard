@@ -4,10 +4,12 @@ import 'core/theme/app_theme.dart';
 import 'core/theme/theme_cubit.dart';
 import 'core/services/ai_service.dart';
 import 'core/services/storage_service.dart';
+import 'core/services/auth_service.dart';
 import 'features/ocr/bloc/ocr_bloc.dart';
 import 'features/explain/bloc/explain_bloc.dart';
-import 'features/history/bloc/history_bloc.dart';
-import 'features/navigation/main_navigation.dart';
+import 'screens/history/bloc/history_bloc.dart';
+import 'features/auth/bloc/auth_bloc.dart';
+import 'features/auth/auth_wrapper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,11 +35,17 @@ class MyApp extends StatelessWidget {
         RepositoryProvider<StorageService>.value(
           value: storageService,
         ),
+        RepositoryProvider<AuthService>(
+          create: (context) => AuthService(),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider<ThemeCubit>(
             create: (context) => ThemeCubit(),
+          ),
+          BlocProvider<AuthBloc>(
+            create: (context) => AuthBloc(context.read<AuthService>()),
           ),
           BlocProvider<OcrBloc>(
             create: (context) => OcrBloc(),
@@ -59,7 +67,7 @@ class MyApp extends StatelessWidget {
               theme: AppTheme.lightTheme,
               darkTheme: AppTheme.darkTheme,
               themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-              home: const MainNavigation(),
+              home: const AuthWrapper(),
               debugShowCheckedModeBanner: false,
             );
           },
