@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:kirundiguard/core/localization/app_localizations.dart';
 import 'bloc/auth_bloc.dart';
 import '../../core/theme/app_theme.dart';
 
@@ -32,8 +33,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   children: [
                     Image.asset('assets/new_icon.png', height: 120),
                     const SizedBox(height: 32),
-                    const Text(
-                      'Create Account',
+                    Text(
+                      AppLocalizations.of(context)!.translate('create_account'),
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
@@ -48,13 +49,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           children: [
                             TextFormField(
                               controller: _emailController,
-                              decoration: const InputDecoration(
-                                labelText: 'Email',
+                              decoration: InputDecoration(
+                                labelText: AppLocalizations.of(context)!.translate('email'),
                                 prefixIcon: Icon(Icons.email),
                               ),
                               validator: (value) {
-                                if (value?.isEmpty ?? true) return 'Enter email';
-                                if (!value!.contains('@')) return 'Invalid email';
+                                if (value?.isEmpty ?? true) return AppLocalizations.of(context)!.translate('enter_email');
+                                if (!value!.contains('@')) return AppLocalizations.of(context)!.translate('invalid_email');
                                 return null;
                               },
                             ),
@@ -62,13 +63,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             TextFormField(
                               controller: _passwordController,
                               obscureText: true,
-                              decoration: const InputDecoration(
-                                labelText: 'Password',
+                              decoration: InputDecoration(
+                                labelText: AppLocalizations.of(context)!.translate('password'),
                                 prefixIcon: Icon(Icons.lock),
                               ),
                               validator: (value) {
-                                if (value?.isEmpty ?? true) return 'Enter password';
-                                if (value!.length < 6) return 'Password too short';
+                                if (value?.isEmpty ?? true) return AppLocalizations.of(context)!.translate('enter_password');
+                                if (value!.length < 6) return AppLocalizations.of(context)!.translate('password_too_short');
                                 return null;
                               },
                             ),
@@ -76,13 +77,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             TextFormField(
                               controller: _confirmPasswordController,
                               obscureText: true,
-                              decoration: const InputDecoration(
-                                labelText: 'Confirm Password',
+                              decoration: InputDecoration(
+                                labelText: AppLocalizations.of(context)!.translate('confirm_password'),
                                 prefixIcon: Icon(Icons.lock_outline),
                               ),
                               validator: (value) {
                                 if (value != _passwordController.text) {
-                                  return 'Passwords don\'t match';
+                                  return AppLocalizations.of(context)!.translate('passwords_dont_match');
                                 }
                                 return null;
                               },
@@ -103,14 +104,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     onPressed: state is AuthLoading ? null : _signUp,
                                     child: state is AuthLoading
                                         ? const CircularProgressIndicator()
-                                        : const Text('Sign Up'),
+                                        : Text(AppLocalizations.of(context)!.translate('sign_up')),
                                   ),
                                 );
                               },
                             ),
                             TextButton(
                               onPressed: () => Navigator.pop(context),
-                              child: const Text('Already have an account? Login'),
+                              child: Text(AppLocalizations.of(context)!.translate('already_have_account')),
                             ),
                           ],
                         ),

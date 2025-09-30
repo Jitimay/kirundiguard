@@ -5,6 +5,7 @@ import '../../screens/history/history_screen.dart';
 import '../../screens/settings/settings_screen.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/theme_cubit.dart';
+import '../../core/localization/app_localizations.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -80,18 +81,18 @@ class _MainNavigationState extends State<MainNavigation> with TickerProviderStat
                   _animationController.reset();
                   _animationController.forward();
                 },
-                items: const [
+                items: [
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.home_rounded),
-                    label: 'Home',
+                    icon: const Icon(Icons.home_rounded),
+                    label: AppLocalizations.of(context)!.translate('home'),
                   ),
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.history_rounded),
-                    label: 'History',
+                    icon: const Icon(Icons.history_rounded),
+                    label: AppLocalizations.of(context)!.translate('history'),
                   ),
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.settings_rounded),
-                    label: 'Settings',
+                    icon: const Icon(Icons.settings_rounded),
+                    label: AppLocalizations.of(context)!.translate('settings'),
                   ),
                 ],
               ),

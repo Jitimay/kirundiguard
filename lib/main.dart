@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'core/localization/app_localizations.dart';
+import 'core/localization/language_cubit.dart';
+import 'core/localization/fallback_material_localizations_delegate.dart';
+import 'core/localization/fallback_cupertino_localizations_delegate.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_cubit.dart';
 import 'core/services/ai_service.dart';
@@ -44,6 +49,9 @@ class MyApp extends StatelessWidget {
           BlocProvider<ThemeCubit>(
             create: (context) => ThemeCubit(),
           ),
+          BlocProvider<LanguageCubit>(
+            create: (context) => LanguageCubit(),
+          ),
           BlocProvider<AuthBloc>(
             create: (context) => AuthBloc(context.read<AuthService>()),
           ),
@@ -62,13 +70,37 @@ class MyApp extends StatelessWidget {
         ],
         child: BlocBuilder<ThemeCubit, bool>(
           builder: (context, isDarkMode) {
-            return MaterialApp(
-              title: 'IkirundiGuard',
-              theme: AppTheme.lightTheme,
-              darkTheme: AppTheme.darkTheme,
-              themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-              home: const AuthWrapper(),
-              debugShowCheckedModeBanner: false,
+            return BlocBuilder<LanguageCubit, Locale>(
+              builder: (context, locale) {
+                return MaterialApp(
+                  title: 'IkirundiGuard',
+                  theme: AppTheme.lightTheme,
+                  darkTheme: AppTheme.darkTheme,
+                  themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
+                  locale: locale,
+                  home: const AuthWrapper(),
+                  debugShowCheckedModeBanner: false,
+                  supportedLocales: [
+                    Locale('en', ''),
+                    Locale('ki', ''),
+                  ],
+                  localizationsDelegates: [
+                    AppLocalizations.delegate,
+                    const FallbackMaterialLocalisationsDelegate(),
+                    const FallbackCupertinoLocalisationsDelegate(),
+                    GlobalWidgetsLocalizations.delegate,
+                  ],
+                  localeResolutionCallback: (locale, supportedLocales) {
+                    for (var supportedLocale in supportedLocales) {
+                      if (supportedLocale.languageCode == locale?.languageCode &&
+                          supportedLocale.countryCode == locale?.countryCode) {
+                        return supportedLocale;
+                      }
+                    }
+                    return supportedLocales.first;
+                  },
+                );
+              },
             );
           },
         ),
