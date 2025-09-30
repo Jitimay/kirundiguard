@@ -70,9 +70,10 @@ class OcrBloc extends Bloc<OcrEvent, OcrState> {
         type: FileType.custom,
         allowedExtensions: ['pdf'],
       );
-      if (result != null) {
-        // For prototype, return dummy text
-        emit(const OcrSuccess(['Dummy PDF text extracted']));
+      if (result != null && result.files.single.path != null) {
+        final filePath = result.files.single.path!;
+        final fileName = result.files.single.name;
+        emit(OcrPdfSelected(filePath, fileName));
       } else {
         emit(const OcrError('No PDF selected'));
       }

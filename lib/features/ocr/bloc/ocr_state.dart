@@ -11,6 +11,11 @@ class OcrImageSelected extends OcrState {
   const OcrImageSelected(this.imageCount);
 }
 
+class OcrPdfSelected extends OcrState {
+  final String filePath;
+  final String fileName;
+  const OcrPdfSelected(this.filePath, this.fileName);
+}
 
 class OcrLoading extends OcrState {}
 

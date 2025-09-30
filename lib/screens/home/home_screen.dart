@@ -6,6 +6,7 @@ import '../../features/explain/result_screen.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/theme_cubit.dart';
 import '../../features/ocr/view_text_screen.dart';
+import '../pdf_viewer_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -254,6 +255,29 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
               ),
             );
+          } else if (state is OcrPdfSelected) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PDFViewerScreen(
+                  filePath: state.filePath,
+                  fileName: state.fileName,
+                ),
+              ),
+            ).then((result) {
+              if (result == 'extract') {
+                // Trigger text extraction from PDF
+                context.read<ExplainBloc>().add(
+                  GenerateExplanation('Sample PDF text for analysis'),
+                );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ResultScreen(),
+                  ),
+                );
+              }
+            });
           }
         },
         builder: (context, state) {
@@ -263,6 +287,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
           if (state is OcrImageSelected) {
             return _buildImageSelectedCard(state.imageCount, isDarkMode);
+          }
+
+          if (state is OcrPdfSelected) {
+            return _buildPdfSelectedCard(state.fileName, isDarkMode);
           }
 
           if (state is OcrSuccess) {
@@ -468,6 +496,61 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPdfSelectedCard(String fileName, bool isDarkMode) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: isDarkMode ? const Color(0xFF2C2C2C) : Colors.white,
+        borderRadius: BorderRadius.circular(25),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.picture_as_pdf,
+            size: 64,
+            color: AppTheme.accentBlue,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'PDF Selected',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: isDarkMode ? Colors.white : Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            fileName,
+            style: TextStyle(
+              fontSize: 14,
+              color: isDarkMode ? Colors.grey[300] : Colors.grey[600],
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'PDF viewer will open automatically',
+            style: TextStyle(
+              fontSize: 12,
+              color: isDarkMode ? Colors.grey[400] : Colors.grey[500],
+            ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
