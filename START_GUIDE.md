@@ -1,57 +1,66 @@
-# KirundiGuard - Complete Setup Guide
+# Getting Started with KirundiGuard
 
-## 🚀 Quick Start
+This guide will help you set up and run the KirundiGuard app locally.
 
-### 1. Start the Backend
+## Prerequisites
+
+Make sure you have:
+- Python 3.8+ installed
+- Flutter SDK installed
+- An Android device or emulator
+
+## Running the Application
+
+### Step 1: Backend Setup
+
+First, you need to start the Python backend server:
+
 ```bash
 cd backend
+pip install -r requirements.txt
 python run.py
 ```
-You should see: `INFO: Uvicorn running on http://0.0.0.0:8000`
 
-### 2. Test the Backend (Optional)
-```bash
-cd backend
-python test_backend.py
+The server should start on port 8000. You'll see a message like:
 ```
-You should see: `✅ Backend working!`
+INFO: Uvicorn running on http://0.0.0.0:8000
+```
 
-### 3. Start Flutter App
+### Step 2: API Configuration (Optional)
+
+For full AI functionality, create a `.env` file in the backend directory:
+
 ```bash
+echo "OPENROUTER_API_KEY=your_api_key_here" > .env
+```
+
+Note: The app works without an API key using fallback responses.
+
+### Step 3: Flutter App
+
+In a new terminal, start the Flutter app:
+
+```bash
+flutter pub get
 flutter run
 ```
 
-## 🔍 Testing the Complete Flow
+## Using the App
 
-1. **Scan a Document**: Tap "Scan Document" or "Import PDF"
-2. **Wait for OCR**: Text should appear in the app
-3. **Click "Explain Document"**: This triggers the AI call
-4. **Watch the Console**: You'll see debug logs like:
-   ```
-   🔄 ExplainBloc: Starting explanation generation...
-   📡 AiService: Sending request to backend...
-   ✅ AiService: Response data received, parsing...
-   🎉 ExplainBloc: Emitted success state
-   ```
+1. Open the app and tap "Scan Document"
+2. Take a photo of any text document
+3. Wait for the text extraction to complete
+4. Tap "Explain Document" to get the analysis
+5. Use the Smart Assistant to ask follow-up questions
 
-## 🐛 Troubleshooting
+## Common Issues
 
-### Backend Issues:
-- **"Connection timeout"**: Backend not running → Start with `python run.py`
-- **"API key not configured"**: Check your `.env` file has `OPENROUTER_API_KEY`
-- **"AI service unavailable"**: OpenRouter API issue → Check your API key
+**Backend won't start**: Make sure you installed the requirements with `pip install -r requirements.txt`
 
-### Flutter Issues:
-- **No response**: Check Flutter console for error logs
-- **Network error**: Make sure backend is on `localhost:8000`
+**Flutter can't connect**: Check that the backend is running and the IP address in `lib/core/services/ai_service.dart` matches your machine's IP.
 
-## 📱 Expected Flow:
-1. User scans document → OCR extracts text
-2. User clicks "Explain Document" → ExplainBloc calls AiService
-3. AiService sends HTTP request → Your FastAPI backend
-4. Backend calls OpenRouter → Gemini processes the text
-5. Gemini returns Kirundi explanation → Backend returns JSON
-6. Flutter displays the explanation → User sees result
+**OCR not working**: Ensure camera permissions are granted on your device.
 
-## 🔧 Debug Mode:
-The app now has detailed logging. Watch the console to see exactly where the process stops if there are issues.
+## Architecture Notes
+
+The app uses a Flutter frontend with a FastAPI backend. Document processing happens through Google ML Kit for OCR, and explanations are generated using the OpenRouter API with Gemini models. The Smart Assistant provides contextual document analysis and interactive Q&A functionality.
