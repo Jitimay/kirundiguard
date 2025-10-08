@@ -21,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late Animation<double> _pulseAnimation;
   late Animation<Offset> _slideAnimation;
   final PageController _pageController = PageController();
-  int _currentPage = 0;
+  final int _currentPage = 0;
 
   @override
   void initState() {
@@ -93,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -215,7 +215,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: gradient.colors.first.withOpacity(0.3),
+              color: gradient.colors.first.withValues(alpha: 0.3),
               blurRadius: 15,
               offset: const Offset(0, 8),
             ),
@@ -265,7 +265,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
               ),
             ).then((result) {
-              if (result == 'extract') {
+              if (result == 'extract' && mounted) {
                 // Trigger text extraction from PDF
                 context.read<ExplainBloc>().add(
                   GenerateExplanation('Sample PDF text for analysis'),
@@ -312,7 +312,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -357,7 +357,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -390,7 +390,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -404,7 +404,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryGreen.withOpacity(0.1),
+                  color: AppTheme.primaryGreen.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
@@ -511,7 +511,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -565,7 +565,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         color: isDarkMode ? const Color(0xFF2C2C2C) : Colors.white,
         borderRadius: BorderRadius.circular(25),
         border: Border.all(
-          color: Colors.grey.withOpacity(0.2),
+          color: Colors.grey.withValues(alpha: 0.2),
         ),
       ),
       child: Column(

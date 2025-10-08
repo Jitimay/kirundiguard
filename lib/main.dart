@@ -10,11 +10,13 @@ import 'core/theme/theme_cubit.dart';
 import 'core/services/ai_service.dart';
 import 'core/services/storage_service.dart';
 import 'core/services/auth_service.dart';
+import 'core/services/smart_assistant_service.dart';
 import 'features/ocr/bloc/ocr_bloc.dart';
 import 'features/explain/bloc/explain_bloc.dart';
 import 'screens/history/bloc/history_bloc.dart';
 import 'features/auth/bloc/auth_bloc.dart';
 import 'features/auth/auth_wrapper.dart';
+import 'features/smart_assistant/bloc/smart_assistant_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,6 +45,9 @@ class MyApp extends StatelessWidget {
         RepositoryProvider<AuthService>(
           create: (context) => AuthService(),
         ),
+        RepositoryProvider<SmartAssistantService>(
+          create: (context) => SmartAssistantService(),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -66,6 +71,9 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider<HistoryBloc>(
             create: (context) => HistoryBloc(context.read<StorageService>()),
+          ),
+          BlocProvider<SmartAssistantBloc>(
+            create: (context) => SmartAssistantBloc(context.read<SmartAssistantService>()),
           ),
         ],
         child: BlocBuilder<ThemeCubit, bool>(

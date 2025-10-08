@@ -1,5 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/document_explanation.dart';
+import '../models/document_type.dart';
 
 class StorageService {
   static const String _boxName = 'explanations';
@@ -9,6 +10,8 @@ class StorageService {
     await Hive.initFlutter();
     Hive.registerAdapter(DocumentExplanationAdapter());
     Hive.registerAdapter(DocumentSectionAdapter());
+    Hive.registerAdapter(DocumentTypeAdapter());
+    Hive.registerAdapter(SmartAnalysisAdapter());
     _box = await Hive.openBox<DocumentExplanation>(_boxName);
   }
 

@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import 'document_type.dart';
 
 part 'document_explanation.g.dart';
 
@@ -25,6 +26,9 @@ class DocumentExplanation extends HiveObject {
   @HiveField(6)
   final String title;
 
+  @HiveField(7)
+  final SmartAnalysis? smartAnalysis;
+
   DocumentExplanation({
     required this.id,
     required this.summaryRn,
@@ -33,9 +37,10 @@ class DocumentExplanation extends HiveObject {
     required this.disclaimerRn,
     required this.createdAt,
     required this.title,
+    this.smartAnalysis,
   });
 
-  factory DocumentExplanation.fromJson(Map<String, dynamic> json) {
+  factory DocumentExplanation.fromJson(Map<String, dynamic> json, {SmartAnalysis? smartAnalysis}) {
     return DocumentExplanation(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       summaryRn: json['summary_rn'] ?? '',
@@ -46,6 +51,7 @@ class DocumentExplanation extends HiveObject {
       disclaimerRn: json['disclaimer_rn'] ?? '',
       createdAt: DateTime.now(),
       title: json['summary_rn']?.substring(0, 30) ?? 'Document',
+      smartAnalysis: smartAnalysis,
     );
   }
 }

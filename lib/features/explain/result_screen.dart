@@ -4,6 +4,7 @@ import '../../core/models/document_explanation.dart';
 import '../../core/services/tts_service.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/theme_cubit.dart';
+import '../smart_assistant/smart_assistant_widget.dart';
 import 'bloc/explain_bloc.dart';
 
 class ResultScreen extends StatefulWidget {
@@ -129,6 +130,10 @@ class _ResultScreenState extends State<ResultScreen> with TickerProviderStateMix
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
+            // Smart Assistant Widget - only show if we have extracted text
+            if (widget.extractedText != null)
+              SmartAssistantWidget(documentText: widget.extractedText!),
+            const SizedBox(height: 20),
             _buildSummaryCard(explanation, isDarkMode),
             const SizedBox(height: 20),
             _buildSectionsCard(explanation, isDarkMode),
