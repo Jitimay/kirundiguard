@@ -224,7 +224,9 @@ CRITICAL: Return ONLY valid JSON. No markdown blocks, no explanations, just the 
                         {"role": "user", "content": prompt}
                     ],
                     "temperature": 0.3,
-                    "max_tokens": 1500
+                    "max_tokens": 1500,
+                    "frequency_penalty": 1.0,
+                    "presence_penalty": 0.5
                 }
             )
 
@@ -257,18 +259,22 @@ CRITICAL: Return ONLY valid JSON. No markdown blocks, no explanations, just the 
                 
                 # Try to fix common JSON issues
                 try:
-                    # Fix common issues like trailing commas, unescaped quotes, etc.
-                    fixed_text = explanation_text.replace(',}', '}').replace(',]', ']')
-                    # Try to extract JSON from mixed content
                     import re
-                    json_match = re.search(r'\{.*\}', fixed_text, re.DOTALL)
-                    if json_match:
-                        fixed_text = json_match.group(0)
+                    fixed_text = explanation_text
+                    
+                    # Fix unquoted property names
+                    fixed_text = re.sub(r'(\w+):', r'"\1":', fixed_text)
+                    # Fix already quoted properties (avoid double quotes)
+                    fixed_text = re.sub(r'""(\w+)"":', r'"\1":', fixed_text)
+                    # Remove trailing commas
+                    fixed_text = re.sub(r',(\s*[}\]])', r'\1', fixed_text)
                     
                     explanation_json = json.loads(fixed_text)
                     logger.info("Successfully parsed JSON after fixing")
                     return explanation_json
-                except:
+                except Exception as fix_error:
+                    logger.error(f"JSON fix failed: {fix_error}")
+                    # Return fallback response
                     # If all else fails, return a structured fallback response
                     logger.warning("Using fallback response due to JSON parsing failure")
                     return {

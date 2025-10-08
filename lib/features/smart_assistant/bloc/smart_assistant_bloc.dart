@@ -114,7 +114,7 @@ class SmartAssistantBloc extends Bloc<SmartAssistantEvent, SmartAssistantState> 
           _currentAnalysis!,
         );
         print('✅ SmartAssistant: Local fallback successful');
-        emit(SmartAssistantQueryResponse(event.query, localResponse));
+        emit(SmartAssistantQueryResponse(event.query, localResponse as String));
       } catch (localError) {
         print('❌ SmartAssistant: Local fallback also failed: $localError');
         emit(SmartAssistantError('$errorMessage. Local processing also failed.'));

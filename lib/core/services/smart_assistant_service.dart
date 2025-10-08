@@ -1,6 +1,17 @@
 import '../models/document_type.dart';
+import 'package:dio/dio.dart';
 
 class SmartAssistantService {
+  late final Dio _dio;
+
+  SmartAssistantService() {
+    _dio = Dio(BaseOptions(
+      connectTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 30),
+    ));
+  }
+
+  String get _baseUrl => 'http://192.168.1.149:8000';
   static const Map<DocumentType, List<String>> _documentKeywords = {
     DocumentType.contract: [
       'contract', 'agreement', 'party', 'obligation', 'terms', 'conditions',
@@ -212,8 +223,30 @@ class SmartAssistantService {
     return facts;
   }
 
-  /// Processes follow-up questions using local reasoning
-  String processFollowUpQuery(String query, String originalText, SmartAnalysis analysis) {
+  /// Processes follow-up questions via API
+  Future<String> processFollowUpQuery(String query, String originalText, SmartAnalysis analysis) async {
+    try {
+      print('🤖 Calling follow-up API: $_baseUrl/follow-up');
+      
+      final response = await _dio.post(
+        '$_baseUrl/follow-up',
+        data: {
+          'query': query,
+          'original_text': originalText,
+          'document_type': analysis.documentType,
+        },
+      );
+
+      print('✅ Follow-up API Success: ${response.statusCode}');
+      return response.data['response'] ?? 'Ntabwo nasobanuye neza ikibazo cyawe.';
+    } catch (e) {
+      print('❌ Follow-up API Error: $e');
+      return _getLocalResponse(query, originalText, analysis);
+    }
+  }
+
+  /// Local fallback processing
+  String _getLocalResponse(String query, String originalText, SmartAnalysis analysis) {
     final lowercaseQuery = query.toLowerCase();
     final lowercaseText = originalText.toLowerCase();
 
