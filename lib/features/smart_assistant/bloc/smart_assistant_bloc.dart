@@ -8,7 +8,7 @@ part 'smart_assistant_state.dart';
 
 class SmartAssistantBloc extends Bloc<SmartAssistantEvent, SmartAssistantState> {
   final SmartAssistantService _smartAssistantService;
-  final Dio _dio = Dio();
+  late final Dio _dio;
   String? _currentDocumentText;
   SmartAnalysis? _currentAnalysis;
   
@@ -16,6 +16,16 @@ class SmartAssistantBloc extends Bloc<SmartAssistantEvent, SmartAssistantState> 
   String get _baseUrl => 'http://192.168.1.149:8000';
 
   SmartAssistantBloc(this._smartAssistantService) : super(SmartAssistantInitial()) {
+    // Configure Dio with proper timeouts
+    _dio = Dio(BaseOptions(
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 60), // Increased for follow-up queries
+      sendTimeout: const Duration(seconds: 10),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    ));
+    
     on<AnalyzeDocument>(_onAnalyzeDocument);
     on<ProcessFollowUpQuery>(_onProcessFollowUpQuery);
     on<ResetAssistant>(_onResetAssistant);
@@ -70,23 +80,44 @@ class SmartAssistantBloc extends Bloc<SmartAssistantEvent, SmartAssistantState> 
       );
       
       print('✅ SmartAssistant: Backend response received');
+      print('📄 SmartAssistant: Response data: ${response.data}');
       final responseText = response.data['response'] ?? 'No response available';
+      print('💬 SmartAssistant: Extracted response: $responseText');
       
       emit(SmartAssistantQueryResponse(event.query, responseText));
     } catch (e) {
       print('❌ SmartAssistant: Query processing error: $e');
       
+      String errorMessage = 'Failed to process query';
+      if (e is DioException) {
+        switch (e.type) {
+          case DioExceptionType.connectionTimeout:
+            errorMessage = 'Connection timeout - please check your network';
+            break;
+          case DioExceptionType.receiveTimeout:
+            errorMessage = 'Response timeout - server is taking too long';
+            break;
+          case DioExceptionType.connectionError:
+            errorMessage = 'Connection error - please check if backend is running';
+            break;
+          default:
+            errorMessage = 'Network error: ${e.message}';
+        }
+      }
+      
       // Fallback to local processing if backend fails
       try {
+        print('🔄 SmartAssistant: Backend failed, using local fallback');
         final localResponse = _smartAssistantService.processFollowUpQuery(
           event.query,
           _currentDocumentText!,
           _currentAnalysis!,
         );
-        print('🔄 SmartAssistant: Using local fallback');
+        print('✅ SmartAssistant: Local fallback successful');
         emit(SmartAssistantQueryResponse(event.query, localResponse));
       } catch (localError) {
-        emit(SmartAssistantError('Failed to process query: $localError'));
+        print('❌ SmartAssistant: Local fallback also failed: $localError');
+        emit(SmartAssistantError('$errorMessage. Local processing also failed.'));
       }
     }
   }

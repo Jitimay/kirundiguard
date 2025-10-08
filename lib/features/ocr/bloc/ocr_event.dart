@@ -8,5 +8,9 @@ class AddPage extends OcrEvent {}
 
 class ProcessImages extends OcrEvent {}
 
-
 class ImportPdf extends OcrEvent {}
+
+class ProcessPdf extends OcrEvent {
+  final String filePath;
+  ProcessPdf(this.filePath);
+}

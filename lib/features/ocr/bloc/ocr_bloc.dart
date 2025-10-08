@@ -2,6 +2,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:syncfusion_flutter_pdf/pdf.dart';
+import 'dart:io';
 
 part 'ocr_event.dart';
 part 'ocr_state.dart';
@@ -16,6 +18,7 @@ class OcrBloc extends Bloc<OcrEvent, OcrState> {
     on<AddPage>(_onAddPage);
     on<ProcessImages>(_onProcessImages);
     on<ImportPdf>(_onImportPdf);
+    on<ProcessPdf>(_onProcessPdf);
   }
 
   Future<void> _onScanImage(ScanImage event, Emitter<OcrState> emit) async {
@@ -79,6 +82,45 @@ class OcrBloc extends Bloc<OcrEvent, OcrState> {
       }
     } catch (e) {
       emit(OcrError('Error importing PDF: $e'));
+    }
+  }
+
+  Future<void> _onProcessPdf(ProcessPdf event, Emitter<OcrState> emit) async {
+    emit(OcrLoading());
+    try {
+      print('🔍 Processing PDF: ${event.filePath}');
+      
+      // Load the PDF document
+      final File file = File(event.filePath);
+      final List<int> bytes = await file.readAsBytes();
+      final PdfDocument document = PdfDocument(inputBytes: bytes);
+      
+      final List<String> extractedTexts = [];
+      
+      // Extract text from each page
+      for (int i = 0; i < document.pages.count; i++) {
+        final PdfTextExtractor extractor = PdfTextExtractor(document);
+        final String pageText = extractor.extractText(startPageIndex: i, endPageIndex: i);
+        
+        if (pageText.trim().isNotEmpty) {
+          final cleanText = _cleanText(pageText);
+          extractedTexts.add(cleanText);
+          print('📄 Extracted text from page ${i + 1}: ${cleanText.length} characters');
+        }
+      }
+      
+      // Dispose the document
+      document.dispose();
+      
+      if (extractedTexts.isEmpty) {
+        emit(const OcrError('No text found in PDF. The PDF might be image-based or encrypted.'));
+      } else {
+        print('✅ Successfully extracted text from ${extractedTexts.length} pages');
+        emit(OcrSuccess(extractedTexts));
+      }
+    } catch (e) {
+      print('❌ Error processing PDF: $e');
+      emit(OcrError('Error processing PDF: $e'));
     }
   }
 

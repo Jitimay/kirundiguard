@@ -30,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       duration: const Duration(seconds: 2),
       vsync: this,
     )..repeat(reverse: true);
-    
+
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -43,7 +43,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _slideController, curve: Curves.elasticOut));
+    ).animate(
+        CurvedAnimation(parent: _slideController, curve: Curves.elasticOut));
 
     _slideController.forward();
   }
@@ -193,7 +194,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
               ),
             ]
-
           ],
         );
       },
@@ -266,16 +266,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
             ).then((result) {
               if (result == 'extract' && mounted) {
-                // Trigger text extraction from PDF
-                context.read<ExplainBloc>().add(
-                  GenerateExplanation('Sample PDF text for analysis'),
-                );
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ResultScreen(),
-                  ),
-                );
+                // Trigger PDF text extraction
+                context.read<OcrBloc>().add(ProcessPdf(state.filePath));
               }
             });
           }
@@ -452,7 +444,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.accentBlue,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -472,10 +465,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   PageRouteBuilder(
                     pageBuilder: (context, animation, secondaryAnimation) =>
                         ResultScreen(extractedText: allText),
-                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
                       return SlideTransition(
                         position: animation.drive(
-                          Tween(begin: const Offset(1.0, 0.0), end: Offset.zero),
+                          Tween(
+                              begin: const Offset(1.0, 0.0), end: Offset.zero),
                         ),
                         child: child,
                       );

@@ -133,10 +133,13 @@ class _SmartAssistantWidgetState extends State<SmartAssistantWidget>
     return BlocConsumer<SmartAssistantBloc, SmartAssistantState>(
       listener: (context, state) {
         if (state is SmartAssistantQueryResponse) {
+          print('🎯 SmartAssistant Widget: Received response for query: ${state.query}');
+          print('📝 SmartAssistant Widget: Response: ${state.response}');
           setState(() {
             _queryHistory.add(QueryResponse(state.query, state.response));
           });
           _queryController.clear();
+          print('📊 SmartAssistant Widget: Query history length: ${_queryHistory.length}');
         }
       },
       builder: (context, state) {
@@ -341,19 +344,40 @@ class _SmartAssistantWidgetState extends State<SmartAssistantWidget>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Conversation',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: isDarkMode ? Colors.white : Colors.black87,
-          ),
+        Row(
+          children: [
+            Text(
+              'Conversation',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: isDarkMode ? Colors.white : Colors.black87,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryGreen,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                '${_queryHistory.length}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 8),
         Container(
-          constraints: const BoxConstraints(maxHeight: 200),
+          constraints: const BoxConstraints(maxHeight: 300),
           child: ListView.builder(
             shrinkWrap: true,
+            physics: const BouncingScrollPhysics(),
             itemCount: _queryHistory.length,
             itemBuilder: (context, index) {
               final item = _queryHistory[index];
@@ -386,11 +410,12 @@ class _SmartAssistantWidgetState extends State<SmartAssistantWidget>
                             : Colors.grey[100],
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Text(
+                      child: SelectableText(
                         item.response,
                         style: TextStyle(
                           fontSize: 14,
                           color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
+                          height: 1.4, // Better line spacing for formatted text
                         ),
                       ),
                     ),

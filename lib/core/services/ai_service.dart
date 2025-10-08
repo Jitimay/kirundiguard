@@ -10,7 +10,7 @@ class AiService {
   AiService() {
     _dio = Dio(BaseOptions(
       connectTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 120), // Increased to 2 minutes for AI processing
       sendTimeout: const Duration(seconds: 30),
     ));
   }
